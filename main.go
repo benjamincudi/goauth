@@ -52,6 +52,10 @@ func main() {
 		}
 		c.HTML(http.StatusOK, "login.gohtml", token.Claims)
 	})
+	r.GET("/signout", func(c *gin.Context) {
+		c.SetCookie(jwtCookieName, "expired", -1, "",  "", true, true)
+		c.Redirect(http.StatusTemporaryRedirect,"/")
+	})
 	r.POST("/api/login/google", func(c *gin.Context) {
 		gCSRFCookie, err := c.Request.Cookie("g_csrf_token")
 		if err != nil {
