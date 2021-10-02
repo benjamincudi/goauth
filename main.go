@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/api/idtoken"
 	"html/template"
 	"log"
 	"net/http"
@@ -13,6 +14,11 @@ import (
 var (
 	gAppClientID = os.Getenv("GOOGLE_APP_ID")
 )
+
+type googleForm struct {
+	Credential string `form:"credential"`
+	GoogleCSRFToken string `form:"g_csrf_token"`
+}
 
 func main() {
 	r := gin.Default()
@@ -29,6 +35,25 @@ func main() {
 		c.HTML(http.StatusOK, "login.gohtml", nil)
 	})
 	r.POST("/api/login/google", func(c *gin.Context) {
+		gCSRFCookie, err := c.Request.Cookie("g_csrf_token")
+		if err != nil {
+			log.Printf("err looking for g_csrf_token cookie: %s\n", err)
+		}
+		var form googleForm
+		if err = c.ShouldBind(&form); err != nil {
+			log.Printf("error parsing form: %v\n", err)
+		}
+		if gCSRFCookie.Value != form.GoogleCSRFToken {
+			log.Println("CSRF mismatch, go back to index")
+			c.Redirect(http.StatusTemporaryRedirect, "/")
+			return
+		}
+		_, err = idtoken.Validate(c.Request.Context(), form.Credential, gAppClientID)
+		if err != nil {
+			log.Printf("validation error, go back to index: %s\n", err)
+			c.Redirect(http.StatusTemporaryRedirect, "/")
+			return
+		}
 		c.Redirect(http.StatusSeeOther, "/login")
 	})
 	if err := r.Run(":80"); err != nil {
