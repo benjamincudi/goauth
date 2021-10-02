@@ -19,6 +19,9 @@ func main() {
 			"title": "GOAuth Index",
 		})
 	})
+	r.GET("/login", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "login.gohtml", nil)
+	})
 	if err := r.Run(":80"); err != nil {
 		log.Fatal(err)
 	}
