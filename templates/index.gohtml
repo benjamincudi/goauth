@@ -2,9 +2,22 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ .title }}</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 <h1>{{ .title }}</h1>
 <h2>Hello from Gin-server!</h2>
+<div id="g_id_onload"
+     data-client_id="{{ .gAppClientID }}"
+     data-login_uri="/api/login/google">
+</div>
+<div class="g_id_signin"
+     data-type="standard"
+     data-size="large"
+     data-theme="outline"
+     data-text="sign_in_with"
+     data-shape="rectangular"
+     data-logo_alignment="left">
+</div>
 </body>
 </html>
