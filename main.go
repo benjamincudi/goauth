@@ -7,6 +7,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
+)
+
+var (
+	gAppClientID = os.Getenv("GOOGLE_APP_ID")
 )
 
 func main() {
@@ -17,10 +22,14 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.gohtml", gin.H{
 			"title": "GOAuth Index",
+			"gAppClientID": gAppClientID,
 		})
 	})
 	r.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.gohtml", nil)
+	})
+	r.POST("/api/login/google", func(c *gin.Context) {
+		c.Redirect(http.StatusSeeOther, "/login")
 	})
 	if err := r.Run(":80"); err != nil {
 		log.Fatal(err)
